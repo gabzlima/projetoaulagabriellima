@@ -13,7 +13,10 @@ const CONFIG = {
 
   // Só o @ (sem o "@"). Vazio = aparece "em breve" no rodapé.
   INSTAGRAM: '',
-  TIKTOK: ''
+  TIKTOK: '',
+
+  // Fotos do lookbook (substituem os quadros em ordem). Ex.: ['assets/lookbook/01.webp', 'assets/lookbook/02.webp']
+  LOOKBOOK_FOTOS: []
 };
 
 (() => {
@@ -51,6 +54,20 @@ const CONFIG = {
       wm.style.setProperty('--py', ((e.clientY - r.top) / r.height - .5) * 14 + 'px');
     });
   }
+
+  /* ---------- entrada ao rolar ---------- */
+  if (!reduce && 'IntersectionObserver' in window) {
+    document.documentElement.classList.add('js');
+    const io = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } }), { threshold: .12 });
+    $$('.rv').forEach(el => io.observe(el));
+  }
+
+  /* ---------- lookbook: fotos reais no lugar dos quadros ---------- */
+  CONFIG.LOOKBOOK_FOTOS.forEach((src, i) => {
+    const fig = $$('.look')[i]; if (!fig) return;
+    const img = new Image(); img.className = 'photo'; img.src = src; img.loading = 'lazy'; img.alt = $('.what', fig).textContent;
+    fig.prepend(img); $('.ph', fig).remove(); $('.soon', fig)?.remove();
+  });
 
   /* ---------- modais ---------- */
   const openDialog = d => {

@@ -288,7 +288,7 @@ body::after {
   transition: transform .5s var(--ease);
   filter: drop-shadow(0 26px 30px rgba(0,0,0,.55));
 }
-.tee-card, .zoom-scope { --tee: #17171B; --rib: #0E0E11; --print: var(--paper); --fold-d: .34; --fold-l: .07; --stitch: rgba(255,255,255,.16); }
+.tee-card, .zoom-scope { --tee: #25252C; --rib: #17171B; --print: var(--paper); --fold-d: .22; --fold-l: .2; --stitch: rgba(255,255,255,.16); }
 .tee-card[data-color="off"], .zoom-scope[data-color="off"] { --tee: #ECE9E0; --rib: #D6D2C6; --print: var(--ink); --fold-d: .2; --fold-l: .65; --stitch: rgba(0,0,0,.2); }
 .tee .rib { fill: var(--rib); transition: fill .45s ease; }
 .tee .print { opacity: .96; transition: opacity .35s ease, transform .5s var(--ease); transform-origin: 200px 200px; }
@@ -300,7 +300,7 @@ body::after {
 .tee-card[data-color="off"] .on-black, .zoom-scope[data-color="off"] .on-black { display: none; }
 .tee .print text { fill: var(--print); font-family: var(--f-display); font-weight: 900; }
 .tee .print text.blue { fill: var(--blue); }
-.tee-card[data-color="black"] .tee .print text.blue, .zoom-scope[data-color="black"] .tee .print text.blue { fill: var(--blue-hi); }
+/*b*/.tee-card[data-color="black"] .tee .print text.blue, .zoom-scope[data-color="black"] .tee .print text.blue { fill: var(--blue-hi); }
 
 .tee-info { display: flex; justify-content: space-between; align-items: start; gap: 12px; padding-inline: 4px; }
 .tee-info h3 { font-family: var(--f-display); font-weight: 900; text-transform: uppercase; font-size: 30px; line-height: 1; margin: 0 0 6px; }
@@ -317,7 +317,7 @@ body::after {
   border: 2px solid var(--line); cursor: pointer; padding: 0;
   transition: transform .25s var(--ease), border-color .2s;
 }
-.swatch[data-c="black"] { background: #17171B; }
+.swatch[data-c="black"] { background: #25252C; }
 .swatch[data-c="off"] { background: #ECE9E0; }
 .swatch[aria-pressed="true"] { border-color: var(--blue-hi); transform: scale(1.12); box-shadow: 0 0 0 3px var(--asphalt-2), 0 0 0 5px var(--blue-hi); }
 .view-btn {
@@ -672,3 +672,50 @@ dialog.zoom { width: min(94vw, 760px); }
   .zoom-btn span { display: none; }
   .zoom-btn { padding: 11px; }
 }
+
+/* ---------- segunda rodada de acabamento ---------- */
+.drop-head .kicker, .look-head .kicker { line-height: 1.2; margin-bottom: 22px; }
+.drop-head h2, .look-head h2 { padding-top: .06em; }
+
+/* palco: holofote e sombra no chão, a camiseta preta não some mais */
+.stage {
+  background:
+    radial-gradient(60% 50% at 50% 38%, rgba(90, 99, 255, .22), transparent 72%),
+    radial-gradient(70% 60% at 50% 30%, rgba(255,255,255,.1), transparent 70%),
+    var(--asphalt-3);
+}
+.stage::after {
+  content: ""; position: absolute; left: 22%; right: 22%; bottom: 6%; height: 7%;
+  background: radial-gradient(closest-side, rgba(0,0,0,.65), transparent);
+  filter: blur(4px); z-index: 0;
+}
+.tee { position: relative; z-index: 1; }
+.tee-card:not(:hover) .tee { animation: float 6s ease-in-out infinite; }
+@keyframes float { 50% { translate: 0 -6px; } }
+
+/* entrada ao rolar (só quando o JS está ligado e sem reduced-motion) */
+.js .rv { opacity: 0; transform: translateY(28px); transition: opacity .8s var(--ease), transform .8s var(--ease); }
+.js .rv.in { opacity: 1; transform: none; }
+.js .tee-card.rv:nth-child(2) { transition-delay: .1s; }
+.js .tee-card.rv:nth-child(3) { transition-delay: .2s; }
+
+/* lookbook compacto */
+.looks { grid-template-columns: repeat(2, 1fr); grid-auto-rows: clamp(170px, 46vw, 230px); }
+@media (min-width: 900px) { .looks { grid-template-columns: repeat(4, 1fr); grid-auto-rows: 300px; } }
+.lookbook .wrap { padding-block: clamp(56px, 8vw, 100px); }
+
+/* celular: provador vira carrossel (arrasta de lado), sem estourar a tela */
+@media (max-width: 760px) {
+  .tees {
+    display: flex; gap: 14px;
+    overflow-x: auto; scroll-snap-type: x mandatory; overscroll-behavior-x: contain;
+    margin-inline: -20px; padding: 4px 20px 18px;
+    scrollbar-width: none;
+  }
+  .tees::-webkit-scrollbar { display: none; }
+  .tee-card { flex: 0 0 82%; scroll-snap-align: center; }
+  .tee-card:hover { transform: none; }
+  .tees-hint { display: flex; }
+}
+.tees-hint { display: none; justify-content: center; gap: 8px; margin-top: 4px; font-family: var(--f-mono); font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: var(--mute); }
+@media (prefers-reduced-motion: reduce) { .js .rv { opacity: 1; transform: none; } }

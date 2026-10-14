@@ -101,6 +101,7 @@
       <use href="#teeShape" fill="url(#knit)"/>
       <use href="#teeShape" fill="url(#shade)"/>
       <use href="#teeShape" fill="url(#light)"/>
+      <use href="#teeShape" fill="none" stroke="#fff" stroke-opacity=".14" stroke-width="1.2"/>
     </g>
   </defs>
 </svg>
@@ -158,7 +159,7 @@
   <!-- DROP -->
   <section class="band drop" id="drop">
     <div class="wrap">
-      <div class="drop-head">
+      <div class="rv drop-head">
         <div>
           <p class="kicker">Drop 01</p>
           <h2 class="display">Três estampas.<br><em>Duas cores.</em></h2>
@@ -170,10 +171,10 @@
         </div>
       </div>
 
-      <div class="tees">
+      <div class="tees" id="tees">
 
         <!-- 01 Assinatura -->
-        <article class="tee-card" data-color="black" data-view="front">
+        <article class="tee-card rv" data-color="black" data-view="front">
           <div class="stage">
             <span class="num">Z—01</span><span class="side">Frente</span>
             <svg class="tee" viewBox="0 0 400 440" role="img" aria-label="Camiseta Assinatura">
@@ -214,7 +215,7 @@
         </article>
 
         <!-- 02 Estrela -->
-        <article class="tee-card" data-color="off" data-view="back">
+        <article class="tee-card rv" data-color="off" data-view="back">
           <div class="stage">
             <span class="num">Z—02</span><span class="side">Costas</span>
             <svg class="tee" viewBox="0 0 400 440" role="img" aria-label="Camiseta Estrela">
@@ -256,7 +257,7 @@
         </article>
 
         <!-- 03 A Rua é Tua -->
-        <article class="tee-card" data-color="black" data-view="back">
+        <article class="tee-card rv" data-color="black" data-view="back">
           <div class="stage">
             <span class="num">Z—03</span><span class="side">Costas</span>
             <svg class="tee" viewBox="0 0 400 440" role="img" aria-label="Camiseta A Rua é Tua">
@@ -299,6 +300,7 @@
         </article>
 
       </div>
+      <p class="tees-hint" aria-hidden="true">← arrasta pra ver as outras →</p>
     </div>
   </section>
 
@@ -367,17 +369,17 @@
   <!-- LOOKBOOK -->
   <section class="band paper lookbook" id="lookbook">
     <div class="wrap">
-      <div class="look-head">
+      <div class="rv look-head">
         <div>
           <p class="kicker">Lookbook</p>
           <h2 class="display">Na rua,<br><em>de verdade.</em></h2>
         </div>
-        <p>As fotos do drop ainda estão sendo feitas, no skate, na praça e no rolê. Os quadros abaixo guardam o lugar de cada uma.</p>
+        <p>As fotos do drop estão sendo feitas no skate, na praça e no rolê. Elas entram aqui quando o drop abrir.</p>
       </div>
       <!-- Pra colocar a foto real: troque o <div class="ph"> e o <span class="soon"> por
            <img class="photo" src="assets/lookbook/01.webp" alt="descrição" loading="lazy" width="800" height="1000"> -->
       <div class="looks">
-        <figure class="look tall">
+        <figure class="look">
           <div class="ph" aria-hidden="true"></div>
           <span class="soon">Foto em breve</span>
           <figcaption><span class="code">LK—01</span><span class="what">Skate, fim de tarde</span></figcaption>
@@ -387,35 +389,15 @@
           <span class="soon">Foto em breve</span>
           <figcaption><span class="code">LK—02</span><span class="what">Detalhe da estampa</span></figcaption>
         </figure>
-        <figure class="look wide">
+        <figure class="look">
           <div class="ph" aria-hidden="true"></div>
           <span class="soon">Foto em breve</span>
-          <figcaption><span class="code">LK—03</span><span class="what">Oversized em movimento</span></figcaption>
+          <figcaption><span class="code">LK—03</span><span class="what">A Rua é Tua nas costas</span></figcaption>
         </figure>
         <figure class="look alt">
           <div class="ph" aria-hidden="true"></div>
           <span class="soon">Foto em breve</span>
-          <figcaption><span class="code">LK—04</span><span class="what">Costas: A Rua é Tua</span></figcaption>
-        </figure>
-        <figure class="look">
-          <div class="ph" aria-hidden="true"></div>
-          <span class="soon">Foto em breve</span>
-          <figcaption><span class="code">LK—05</span><span class="what">Rolê na praça</span></figcaption>
-        </figure>
-        <figure class="look wide alt">
-          <div class="ph" aria-hidden="true"></div>
-          <span class="soon">Foto em breve</span>
-          <figcaption><span class="code">LK—06</span><span class="what">Etiqueta e acabamento</span></figcaption>
-        </figure>
-        <figure class="look wide">
-          <div class="ph" aria-hidden="true"></div>
-          <span class="soon">Foto em breve</span>
-          <figcaption><span class="code">LK—07</span><span class="what">Assinatura preta</span></figcaption>
-        </figure>
-        <figure class="look">
-          <div class="ph" aria-hidden="true"></div>
-          <span class="soon">Foto em breve</span>
-          <figcaption><span class="code">LK—08</span><span class="what">Off-white no asfalto</span></figcaption>
+          <figcaption><span class="code">LK—04</span><span class="what">Assinatura no asfalto</span></figcaption>
         </figure>
       </div>
     </div>
