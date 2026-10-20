@@ -30,12 +30,14 @@
 <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
 
 <link rel="preload" as="image" href="assets/wordmark-light.webp" type="image/webp" fetchpriority="high">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;900&family=Familjen+Grotesk:wght@400;500;700&family=JetBrains+Mono:wght@500&display=swap">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;900&family=Familjen+Grotesk:wght@400;500;700&family=JetBrains+Mono:wght@500&display=swap" media="print" onload="this.media='all'">
-<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;900&family=Familjen+Grotesk:wght@400;500;700&family=JetBrains+Mono:wght@500&display=swap"></noscript>
+<link rel="preload" as="font" type="font/woff2" href="assets/fonts/big-shoulders-display.woff2" crossorigin>
+<link rel="preload" as="font" type="font/woff2" href="assets/fonts/familjen-grotesk.woff2" crossorigin>
 <link rel="stylesheet" href="css/style.css">
+<script>
+  // liga as animações só pra quem não pediu movimento reduzido
+  if (!matchMedia('(prefers-reduced-motion: reduce)').matches) document.documentElement.classList.add('motion');
+  if (matchMedia('(hover: hover) and (pointer: fine)').matches) document.documentElement.classList.add('fine');
+</script>
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"Brand","name":"Zanza Street Wear","slogan":"A rua é tua","logo":"https://zanza.com.br/assets/apple-touch-icon.png","url":"https://zanza.com.br/"}
 </script>
@@ -106,43 +108,87 @@
   </defs>
 </svg>
 
-<a class="sr-only" href="#drop">Pular para o conteúdo</a>
-<header class="nav" id="nav">
-  <div class="wrap">
-    <a class="nav-logo" href="#topo" aria-label="Zanza, voltar ao topo">
+<a class="skip" href="#visao">Pular para o conteúdo</a>
+
+<!-- faixa de aviso -->
+<div class="promo">
+  <p><span class="live"></span>Pré-venda do Drop 01 aberta. Só 50 peças. <a href="#lista">Entrar na lista ›</a></p>
+</div>
+
+<!-- menu global (rola junto) -->
+<header class="gnav">
+  <div class="wrap gnav-in">
+    <a class="gnav-logo" href="#topo" aria-label="Zanza, voltar ao topo">
       <img src="assets/star-light.webp" alt="" width="644" height="740">
     </a>
-    <nav class="nav-links" aria-label="Principal">
-      <a href="#drop">Drop 01</a>
-      <a href="#manifesto">A marca</a>
+    <nav class="gnav-links" aria-label="Principal">
+      <a href="#visao">Visão geral</a>
+      <a href="#estampas">Estampas</a>
+      <a href="#detalhes">Detalhes</a>
       <a href="#lookbook">Lookbook</a>
-      <a href="#qualidade">Qualidade</a>
-      <a class="pill" href="#lista">Pré-venda</a>
+      <a href="#duvidas">Dúvidas</a>
     </nav>
   </div>
 </header>
 
+<!-- menu do produto (gruda no topo, estilo Apple) -->
+<nav class="lnav" id="lnav" aria-label="Drop 01">
+  <div class="wrap lnav-in">
+    <a class="lnav-title" href="#topo">Drop 01</a>
+    <div class="lnav-links">
+      <a href="#visao">Visão geral</a>
+      <a href="#estampas">Estampas</a>
+      <button type="button" data-open="sizeModal">Medidas</button>
+      <a class="btn btn-blue btn-xs" href="#lista">Entrar na lista</a>
+    </div>
+  </div>
+</nav>
+
 <main id="topo">
-  <!-- HERO -->
-  <section class="band hero" id="hero">
-    <img class="hero-star" src="assets/star-light.webp" alt="" width="644" height="740">
-    <div class="wrap">
-      <div class="hero-meta">
-        <span class="live">Pré-venda aberta</span>
-        <span>Drop 01</span>
-        <span>Tiragem de 50 peças</span>
+  <!-- HERO: passa o mouse e a rua aparece -->
+  <section class="hero" id="hero">
+    <div class="hr-layer hr-base" aria-hidden="true">
+      <p class="hr-row" style="--d:0">A RUA É TUA <i>★</i> ZANZA <i>★</i> A RUA É TUA <i>★</i> ZANZA <i>★</i> A RUA É TUA <i>★</i> ZANZA <i>★</i> A RUA É TUA <i>★</i> ZANZA <i>★</i> </p>
+      <p class="hr-row" style="--d:1">A RUA É TUA <i>★</i> ZANZA <i>★</i> A RUA É TUA <i>★</i> ZANZA <i>★</i> A RUA É TUA <i>★</i> ZANZA <i>★</i> A RUA É TUA <i>★</i> ZANZA <i>★</i> </p>
+      <p class="hr-row" style="--d:0">A RUA É TUA <i>★</i> ZANZA <i>★</i> A RUA É TUA <i>★</i> ZANZA <i>★</i> A RUA É TUA <i>★</i> ZANZA <i>★</i> A RUA É TUA <i>★</i> ZANZA <i>★</i> </p>
+      <p class="hr-row" style="--d:1">A RUA É TUA <i>★</i> ZANZA <i>★</i> A RUA É TUA <i>★</i> ZANZA <i>★</i> A RUA É TUA <i>★</i> ZANZA <i>★</i> A RUA É TUA <i>★</i> ZANZA <i>★</i> </p>
+      <p class="hr-row" style="--d:0">A RUA É TUA <i>★</i> ZANZA <i>★</i> A RUA É TUA <i>★</i> ZANZA <i>★</i> A RUA É TUA <i>★</i> ZANZA <i>★</i> A RUA É TUA <i>★</i> ZANZA <i>★</i> </p>
+      <p class="hr-row" style="--d:1">A RUA É TUA <i>★</i> ZANZA <i>★</i> A RUA É TUA <i>★</i> ZANZA <i>★</i> A RUA É TUA <i>★</i> ZANZA <i>★</i> A RUA É TUA <i>★</i> ZANZA <i>★</i> </p>
+      <p class="hr-row" style="--d:0">A RUA É TUA <i>★</i> ZANZA <i>★</i> A RUA É TUA <i>★</i> ZANZA <i>★</i> A RUA É TUA <i>★</i> ZANZA <i>★</i> A RUA É TUA <i>★</i> ZANZA <i>★</i> </p>
+      <p class="hr-row" style="--d:1">A RUA É TUA <i>★</i> ZANZA <i>★</i> A RUA É TUA <i>★</i> ZANZA <i>★</i> A RUA É TUA <i>★</i> ZANZA <i>★</i> A RUA É TUA <i>★</i> ZANZA <i>★</i> </p>
+      <p class="hr-row" style="--d:0">A RUA É TUA <i>★</i> ZANZA <i>★</i> A RUA É TUA <i>★</i> ZANZA <i>★</i> A RUA É TUA <i>★</i> ZANZA <i>★</i> A RUA É TUA <i>★</i> ZANZA <i>★</i> </p>
+      <p class="hr-row" style="--d:1">A RUA É TUA <i>★</i> ZANZA <i>★</i> A RUA É TUA <i>★</i> ZANZA <i>★</i> A RUA É TUA <i>★</i> ZANZA <i>★</i> A RUA É TUA <i>★</i> ZANZA <i>★</i> </p>
+    </div>
+    <div class="spot" id="spot" aria-hidden="true">
+      <div class="spot-in" id="spotIn">
+        <div class="hr-layer hr-lit">
+      <p class="hr-row" style="--d:0">A RUA É TUA <i>★</i> ZANZA <i>★</i> A RUA É TUA <i>★</i> ZANZA <i>★</i> A RUA É TUA <i>★</i> ZANZA <i>★</i> A RUA É TUA <i>★</i> ZANZA <i>★</i> </p>
+      <p class="hr-row" style="--d:1">A RUA É TUA <i>★</i> ZANZA <i>★</i> A RUA É TUA <i>★</i> ZANZA <i>★</i> A RUA É TUA <i>★</i> ZANZA <i>★</i> A RUA É TUA <i>★</i> ZANZA <i>★</i> </p>
+      <p class="hr-row" style="--d:0">A RUA É TUA <i>★</i> ZANZA <i>★</i> A RUA É TUA <i>★</i> ZANZA <i>★</i> A RUA É TUA <i>★</i> ZANZA <i>★</i> A RUA É TUA <i>★</i> ZANZA <i>★</i> </p>
+      <p class="hr-row" style="--d:1">A RUA É TUA <i>★</i> ZANZA <i>★</i> A RUA É TUA <i>★</i> ZANZA <i>★</i> A RUA É TUA <i>★</i> ZANZA <i>★</i> A RUA É TUA <i>★</i> ZANZA <i>★</i> </p>
+      <p class="hr-row" style="--d:0">A RUA É TUA <i>★</i> ZANZA <i>★</i> A RUA É TUA <i>★</i> ZANZA <i>★</i> A RUA É TUA <i>★</i> ZANZA <i>★</i> A RUA É TUA <i>★</i> ZANZA <i>★</i> </p>
+      <p class="hr-row" style="--d:1">A RUA É TUA <i>★</i> ZANZA <i>★</i> A RUA É TUA <i>★</i> ZANZA <i>★</i> A RUA É TUA <i>★</i> ZANZA <i>★</i> A RUA É TUA <i>★</i> ZANZA <i>★</i> </p>
+      <p class="hr-row" style="--d:0">A RUA É TUA <i>★</i> ZANZA <i>★</i> A RUA É TUA <i>★</i> ZANZA <i>★</i> A RUA É TUA <i>★</i> ZANZA <i>★</i> A RUA É TUA <i>★</i> ZANZA <i>★</i> </p>
+      <p class="hr-row" style="--d:1">A RUA É TUA <i>★</i> ZANZA <i>★</i> A RUA É TUA <i>★</i> ZANZA <i>★</i> A RUA É TUA <i>★</i> ZANZA <i>★</i> A RUA É TUA <i>★</i> ZANZA <i>★</i> </p>
+      <p class="hr-row" style="--d:0">A RUA É TUA <i>★</i> ZANZA <i>★</i> A RUA É TUA <i>★</i> ZANZA <i>★</i> A RUA É TUA <i>★</i> ZANZA <i>★</i> A RUA É TUA <i>★</i> ZANZA <i>★</i> </p>
+      <p class="hr-row" style="--d:1">A RUA É TUA <i>★</i> ZANZA <i>★</i> A RUA É TUA <i>★</i> ZANZA <i>★</i> A RUA É TUA <i>★</i> ZANZA <i>★</i> A RUA É TUA <i>★</i> ZANZA <i>★</i> </p>
+        </div>
       </div>
+    </div>
+
+    <div class="wrap hero-in">
+      <p class="hero-eyebrow"><span class="live"></span>Drop 01 · Pré-venda aberta</p>
       <img class="hero-spin" src="assets/star-light.webp" alt="" width="644" height="740" fetchpriority="high">
-      <h1 class="wordmark" id="wordmark" style="margin:0">
+      <h1 class="wordmark" id="wordmark">
         <img src="assets/wordmark-light.webp" alt="Zanza" width="1000" height="378" fetchpriority="high">
       </h1>
-      <p class="hero-sub">Street Wear</p>
       <p class="display slogan">A rua é <span class="tua">tua.<svg viewBox="0 0 300 30" preserveAspectRatio="none" aria-hidden="true"><path d="M6 20 C 70 6, 150 26, 294 10"/></svg></span></p>
-      <p class="hero-copy">Camisetas oversized de algodão encorpado, com estampa que não desbota. Pra andar a cidade inteira do seu jeito.</p>
+      <p class="hero-copy">Camisetas oversized de algodão encorpado, com estampa que não desbota. Tiragem de 50 peças.</p>
       <div class="cta-row">
-        <a class="btn" href="#lista">Garantir a minha <span class="arrow">→</span></a>
-        <a class="btn ghost" href="#drop">Ver o drop</a>
+        <a class="btn btn-blue magnetic" href="#lista">Entrar na lista</a>
+        <a class="link-more" href="#estampas">Ver as estampas <span aria-hidden="true">›</span></a>
       </div>
+      <p class="hero-hint" aria-hidden="true"><span class="fine-only">Passa o mouse. A rua aparece.</span><span class="touch-only">Toca e arrasta. A rua aparece.</span></p>
     </div>
   </section>
 
@@ -156,26 +202,61 @@
     </div></div>
   </div>
 
-  <!-- DROP -->
-  <section class="band drop" id="drop">
-    <div class="wrap">
-      <div class="rv drop-head">
-        <div>
-          <p class="kicker">Drop 01</p>
-          <h2 class="display">Três estampas.<br><em>Duas cores.</em></h2>
+  <!-- VISÃO GERAL: a camiseta muda conforme a rolagem -->
+  <section class="scene" id="visao">
+    <div class="scene-head wrap rv">
+      <p class="eyebrow">Visão geral</p>
+      <h2 class="display headline">Feita pra rua.<br><em>Do avesso ao detalhe.</em></h2>
+    </div>
+    <div class="scene-track" id="sceneTrack">
+      <div class="scene-sticky">
+        <div class="scene-stage tee-scope" id="sceneStage" data-color="black" data-view="front">
+          <div class="scene-glow"></div>
+          <div class="scene-tee-wrap" id="sceneTee">
+            <svg class="tee scene-tee" viewBox="0 0 400 440" aria-hidden="true">
+              <use href="#teeBase"/>
+              <path class="rib collar-front" d="M136 34 C160 30 176 28 200 28 C224 28 240 30 264 34 C246 66 226 76 200 76 C174 76 154 66 136 34 Z"/>
+              <path class="collar-front" d="M150 36 C166 60 182 66 200 66 C218 66 234 60 250 36" fill="#000" fill-opacity=".45"/>
+              <path class="collar-front" d="M141 40 C162 70 238 70 259 40" fill="none" stroke="var(--stitch)" stroke-width="1.2" stroke-dasharray="3 3"/>
+              <path class="rib collar-back" d="M136 34 C160 30 176 28 200 28 C224 28 240 30 264 34 C246 46 226 50 200 50 C174 50 154 46 136 34 Z"/>
+              <path class="collar-back" d="M142 38 C166 52 234 52 258 38" fill="none" stroke="var(--stitch)" stroke-width="1.2" stroke-dasharray="3 3"/>
+              <g class="print front">
+                <image class="on-black" href="assets/wordmark-light.webp" x="122" y="112" width="156" height="59"/>
+                <image class="on-off" href="assets/wordmark-dark.webp" x="122" y="112" width="156" height="59"/>
+              </g>
+              <g class="print back">
+                <text x="200" y="150" text-anchor="middle" font-size="74">A RUA</text>
+                <text x="200" y="222" text-anchor="middle" font-size="74" class="blue">É TUA</text>
+                <image class="on-black" href="assets/star-light.webp" x="170" y="240" width="60" height="69"/>
+                <image class="on-off" href="assets/star-dark.webp" x="170" y="240" width="60" height="69"/>
+              </g>
+              <use href="#teeOverlay"/>
+            </svg>
+          </div>
         </div>
-        <div>
-          <p style="margin:0;color:var(--mute);max-width:38ch">Escolha a cor e vire a peça pra ver a frente e as costas. Passa o mouse (ou o dedo) em cima da camiseta pra girar, ou toca no zoom pra ver a estampa de perto.
-          <span class="drop-count">50 peças no total · P ao XG</span></p>
-          <div class="drop-tools"><button class="btn ghost sm" type="button" data-open="sizeModal">Tabela de medidas</button></div>
+        <div class="scene-caps" id="sceneCaps">
+          <p class="cap" data-i="0"><b>Oversized de verdade.</b> Ombro caído, corpo largo e comprimento na medida.</p>
+          <p class="cap" data-i="1"><b>Algodão penteado 180–200 g/m².</b> Encorpado, macio e sem bolinha. Você sente no toque.</p>
+          <p class="cap" data-i="2"><b>Preta ou off-white.</b> Duas cores que combinam com tudo que você já tem.</p>
+          <p class="cap" data-i="3"><b>Estampa DTF.</b> Cor viva, detalhe fino e toque macio. Aguenta lavagem.</p>
         </div>
+        <ol class="scene-dots" aria-hidden="true"><li></li><li></li><li></li><li></li></ol>
       </div>
+    </div>
+  </section>
 
+  <!-- ESTAMPAS -->
+  <section class="band estampas" id="estampas">
+    <div class="wrap">
+      <div class="sec-head rv">
+        <p class="eyebrow">Estampas</p>
+        <h2 class="display headline">Escolhe a tua.</h2>
+        <p class="lede">Três estampas, duas cores, <b>50 peças no total.</b> Troca a cor, vira a peça e dá zoom na estampa.</p>
+        <button class="link-more" type="button" data-open="sizeModal">Tabela de medidas <span aria-hidden="true">›</span></button>
+      </div>
       <div class="tees" id="tees">
-
-        <!-- 01 Assinatura -->
-        <article class="tee-card rv" data-color="black" data-view="front">
-          <div class="stage">
+        <article class="tee-card tee-scope rv" data-color="black" data-view="front">
+          <div class="stage" data-cursor="Gira">
             <span class="num">Z—01</span><span class="side">Frente</span>
             <svg class="tee" viewBox="0 0 400 440" role="img" aria-label="Camiseta Assinatura">
               <use href="#teeBase"/>
@@ -194,13 +275,14 @@
               </g>
               <use href="#teeOverlay"/>
             </svg>
-            <button class="zoom-btn" type="button" aria-label="Ampliar a estampa da camiseta Assinatura">
+            <button class="zoom-btn" type="button" aria-label="Ampliar a estampa da camiseta Assinatura" data-cursor="Zoom">
               <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m20 20-4.8-4.8M10.5 8v5M8 10.5h5"/></svg><span>Zoom</span>
             </button>
           </div>
           <div class="tee-info">
-            <div><h3>Assinatura</h3><p>A logo Zanza no peito, do jeito que nasceu.</p></div>
-            <span class="tag-soon">Pré-venda</span>
+            <p class="tee-new">Pré-venda</p>
+            <h3>Assinatura</h3>
+            <p>A logo Zanza no peito, do jeito que nasceu.</p>
           </div>
           <div class="controls">
             <div class="swatches" role="group" aria-label="Cor">
@@ -212,11 +294,10 @@
               <button class="view-btn" data-v="back" aria-pressed="false">Costas</button>
             </div>
           </div>
+          <a class="btn btn-blue btn-sm" href="#lista" data-tee="Assinatura">Quero essa</a>
         </article>
-
-        <!-- 02 Estrela -->
-        <article class="tee-card rv" data-color="off" data-view="back">
-          <div class="stage">
+        <article class="tee-card tee-scope rv" data-color="off" data-view="back">
+          <div class="stage" data-cursor="Gira">
             <span class="num">Z—02</span><span class="side">Costas</span>
             <svg class="tee" viewBox="0 0 400 440" role="img" aria-label="Camiseta Estrela">
               <use href="#teeBase"/>
@@ -236,13 +317,14 @@
               </g>
               <use href="#teeOverlay"/>
             </svg>
-            <button class="zoom-btn" type="button" aria-label="Ampliar a estampa da camiseta Estrela">
+            <button class="zoom-btn" type="button" aria-label="Ampliar a estampa da camiseta Estrela" data-cursor="Zoom">
               <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m20 20-4.8-4.8M10.5 8v5M8 10.5h5"/></svg><span>Zoom</span>
             </button>
           </div>
           <div class="tee-info">
-            <div><h3>Estrela</h3><p>Sublogo pequeno no peito, estrela grande nas costas.</p></div>
-            <span class="tag-soon">Pré-venda</span>
+            <p class="tee-new">Pré-venda</p>
+            <h3>Estrela</h3>
+            <p>Sublogo no peito, estrela grande nas costas.</p>
           </div>
           <div class="controls">
             <div class="swatches" role="group" aria-label="Cor">
@@ -254,11 +336,10 @@
               <button class="view-btn" data-v="back" aria-pressed="true">Costas</button>
             </div>
           </div>
+          <a class="btn btn-blue btn-sm" href="#lista" data-tee="Estrela">Quero essa</a>
         </article>
-
-        <!-- 03 A Rua é Tua -->
-        <article class="tee-card rv" data-color="black" data-view="back">
-          <div class="stage">
+        <article class="tee-card tee-scope rv" data-color="black" data-view="back">
+          <div class="stage" data-cursor="Gira">
             <span class="num">Z—03</span><span class="side">Costas</span>
             <svg class="tee" viewBox="0 0 400 440" role="img" aria-label="Camiseta A Rua é Tua">
               <use href="#teeBase"/>
@@ -279,13 +360,14 @@
               </g>
               <use href="#teeOverlay"/>
             </svg>
-            <button class="zoom-btn" type="button" aria-label="Ampliar a estampa da camiseta A Rua é Tua">
+            <button class="zoom-btn" type="button" aria-label="Ampliar a estampa da camiseta A Rua é Tua" data-cursor="Zoom">
               <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m20 20-4.8-4.8M10.5 8v5M8 10.5h5"/></svg><span>Zoom</span>
             </button>
           </div>
           <div class="tee-info">
-            <div><h3>A Rua é Tua</h3><p>O slogan em letra grande nas costas. A peça manifesto.</p></div>
-            <span class="tag-soon">Pré-venda</span>
+            <p class="tee-new">Pré-venda</p>
+            <h3>A Rua é Tua</h3>
+            <p>O slogan em letra grande nas costas. A peça manifesto.</p>
           </div>
           <div class="controls">
             <div class="swatches" role="group" aria-label="Cor">
@@ -297,8 +379,8 @@
               <button class="view-btn" data-v="back" aria-pressed="true">Costas</button>
             </div>
           </div>
+          <a class="btn btn-blue btn-sm" href="#lista" data-tee="A Rua é Tua">Quero essa</a>
         </article>
-
       </div>
       <p class="tees-hint" aria-hidden="true">← arrasta pra ver as outras →</p>
     </div>
@@ -308,40 +390,27 @@
   <section class="band paper manifesto" id="manifesto">
     <img class="manifesto-star" loading="lazy" src="assets/star-dark.webp" alt="" width="644" height="740">
     <div class="wrap">
-      <p class="kicker">Manifesto</p>
+      <p class="eyebrow">Manifesto</p>
       <p class="manifesto-text" id="manifestoText">Zanzar é andar sem destino certo. Descer a ladeira de skate, cruzar a cidade a pé, parar onde der vontade. A Zanza é roupa pra esse rolê. Larga, firme e feita pra durar. *A *rua *é *tua.</p>
-      <div class="manifesto-foot">
-        <div><strong>Oversized</strong><span>Ombro caído, corpo largo, comprimento na medida.</span></div>
-        <div><strong>Skate</strong><span>Estampas limpas, com a energia de quem anda de shape.</span></div>
-        <div><strong>Rua</strong><span>Pensada pro calor, pra chuva e pro rolê do dia inteiro.</span></div>
-      </div>
     </div>
   </section>
 
-  <!-- QUALIDADE -->
-  <section class="band quality" id="qualidade">
+  <!-- DETALHES (bento) -->
+  <section class="band detalhes" id="detalhes">
     <div class="wrap">
-      <div>
-        <p class="kicker">Qualidade</p>
-        <h2 class="display">Você sente <em>no toque.</em></h2>
-        <p class="lead">A mesma malha que as melhores marcas de streetwear do Brasil usam. Encorpada, com caimento firme, sem encolher depois da primeira lavagem.</p>
-        <ul class="points">
-          <li>
-            <span class="ic"><svg viewBox="0 0 24 24"><path d="M4 7c3-3 13-3 16 0M4 12c3-3 13-3 16 0M4 17c3-3 13-3 16 0"/></svg></span>
-            <div><b>Algodão penteado 180–200 g/m²</b><span>Fio mais longo e macio, que não faz bolinha.</span></div>
-          </li>
-          <li>
-            <span class="ic"><svg viewBox="0 0 24 24"><path d="M4 20 20 4M9 4h11v11"/></svg></span>
-            <div><b>Não encolhe, não desbota</b><span>Malha pré-encolhida e tingimento firme.</span></div>
-          </li>
-          <li>
-            <span class="ic"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M7 15l3-4 3 3 2-2 3 3"/></svg></span>
-            <div><b>Estampa DTF</b><span>Cor viva, detalhe fino e toque macio. Aguenta lavagem.</span></div>
-          </li>
-        </ul>
+      <div class="sec-head rv">
+        <p class="eyebrow">Detalhes</p>
+        <h2 class="display headline">Você sente<br><em>no toque.</em></h2>
+        <p class="lede">A mesma malha que as melhores marcas de streetwear do Brasil usam. <b>Encorpada, com caimento firme, sem encolher depois da primeira lavagem.</b></p>
       </div>
-
-      <div class="label-wrap">
+      <div class="bento" id="bento">
+        <div class="tile t-gsm rv">
+          <p class="t-k">Malha</p>
+          <p class="t-big">200<small>g/m²</small></p>
+          <p class="t-txt"><b>Algodão penteado 180–200 g/m².</b> Fio mais longo e macio, que não faz bolinha.</p>
+        </div>
+        <div class="tile t-label rv">
+          <div class="label-wrap">
         <div class="woven" aria-label="Etiqueta da camiseta Zanza">
           <span class="hole"></span>
           <img src="assets/wordmark-dark.webp" alt="Zanza" width="1000" height="378" loading="lazy">
@@ -354,13 +423,40 @@
             <div><dt>Estampa</dt><dd>DTF</dd></div>
             <div><dt>Tamanhos</dt><dd>P · M · G · GG · XG</dd></div>
           </dl>
-          <div class="care" aria-label="Cuidados: lavar a 30 graus, não usar alvejante, passar em temperatura baixa, não usar secadora">
+          <div class="care" role="img" aria-label="Cuidados: lavar a 30 graus, não usar alvejante, passar em temperatura baixa, não usar secadora">
             <svg viewBox="0 0 34 30"><path d="M3 7l3 18h22l3-18"/><path d="M3 7c3 3 5 3 7 0 2 3 5 3 7 0 2 3 5 3 7 0 2 3 5 3 7 0"/><text x="11" y="21">30</text></svg>
             <svg viewBox="0 0 34 30"><path d="M17 4 31 26H3Z"/><path d="M6 6l22 22M28 6 6 28"/></svg>
             <svg viewBox="0 0 34 30"><path d="M4 24h26c0-8-4-14-12-14H10L8 6"/><circle cx="17" cy="18" r="1.4" fill="currentColor"/></svg>
             <svg viewBox="0 0 34 30"><rect x="4" y="3" width="26" height="24"/><circle cx="17" cy="15" r="8"/><path d="M4 3l26 24M30 3 4 27"/></svg>
           </div>
           <p class="made">Feito no Brasil</p>
+        </div>
+          </div>
+        </div>
+        <div class="tile t-50 rv">
+          <p class="t-k">Tiragem</p>
+          <p class="t-big">50</p>
+          <p class="t-txt"><b>Peças no Drop 01.</b> Quem tá na lista vê primeiro.</p>
+        </div>
+        <div class="tile t-size rv">
+          <p class="t-k">Tamanhos</p>
+          <p class="t-big t-sizes">P M G GG XG</p>
+          <p class="t-txt"><b>Modelagem oversized.</b> Larga de propósito.</p>
+          <button class="link-more" type="button" data-open="sizeModal">Ver medidas <span aria-hidden="true">›</span></button>
+        </div>
+        <div class="tile t-dtf rv">
+          <p class="t-k">Estampa</p>
+          <p class="t-big">DTF</p>
+          <p class="t-txt"><b>Cor viva e toque macio.</b> Aguenta lavagem.</p>
+        </div>
+        <div class="tile t-br rv">
+          <img src="assets/star-light.webp" alt="" width="644" height="740" loading="lazy">
+          <p class="t-txt"><b>Feito no Brasil.</b> Pra rua daqui.</p>
+        </div>
+        <div class="tile t-wash rv">
+          <p class="t-k">Durabilidade</p>
+          <p class="t-mid">Não encolhe.<br>Não desbota.</p>
+          <p class="t-txt"><b>Malha pré-encolhida e tingimento firme.</b> Lava a 30°, sem secadora, e ela segue igual.</p>
         </div>
       </div>
     </div>
@@ -371,7 +467,7 @@
     <div class="wrap">
       <div class="rv look-head">
         <div>
-          <p class="kicker">Lookbook</p>
+          <p class="eyebrow">Lookbook</p>
           <h2 class="display">Na rua,<br><em>de verdade.</em></h2>
         </div>
         <p>As fotos do drop ainda estão sendo feitas, no skate, na praça e no rolê. Os quadros abaixo guardam o lugar de cada uma.</p>
@@ -426,15 +522,19 @@
   <!-- PRÉ-VENDA -->
   <section class="band presale" id="lista">
     <img class="bg-word" src="assets/wordmark-light.webp" alt="" width="1000" height="378" loading="lazy">
-    <div class="wrap">
-      <div>
-        <p class="kicker">Lista de pré-venda</p>
-        <h2 class="display">Entra na lista.<br>Sai na frente.</h2>
-        <p class="lead">São só 50 peças no primeiro drop. Quem está na lista fica sabendo antes de todo mundo e garante a sua com preço de estreia.</p>
+    <div class="wrap presale-in">
+      <div class="rv">
+        <p class="eyebrow">Lista de pré-venda</p>
+        <h2 class="display headline">Entra na lista.<br>Sai na frente.</h2>
+        <p class="lede">São só 50 peças no primeiro drop. <b>Quem está na lista fica sabendo antes de todo mundo</b> e garante a sua com preço de estreia.</p>
+        <div class="countdown" id="countdown" hidden>
+          <p class="cd-k">O drop abre em</p>
+          <div class="cd-row"><div><b id="cdD">00</b><span>dias</span></div><div><b id="cdH">00</b><span>horas</span></div><div><b id="cdM">00</b><span>min</span></div><div><b id="cdS">00</b><span>seg</span></div></div>
+        </div>
         <ul class="perks">
-          <li>Aviso antecipado no WhatsApp</li>
-          <li>Preço de estreia só pra lista</li>
-          <li>Você escolhe tamanho e cor primeiro</li>
+          <li><b>Aviso antecipado</b> no WhatsApp</li>
+          <li><b>Preço de estreia</b> só pra lista</li>
+          <li><b>Você escolhe primeiro</b> tamanho e cor</li>
         </ul>
       </div>
 
@@ -452,13 +552,22 @@
             <p class="err" id="err-whats" role="alert"></p>
           </div>
           <div class="field">
-            <div class="hint-row"><span class="lbl" id="lblTam">Tamanho</span><button type="button" class="link-btn" data-open="sizeModal">Qual é o meu?</button></div>
+            <div class="hint-row"><span class="lbl" id="lblTam">Tamanho</span><button type="button" class="link-btn" data-open="sizeModal">Qual é o meu? ›</button></div>
             <div class="chips" role="group" aria-labelledby="lblTam" data-group="tam">
               <button type="button" class="chip" aria-pressed="false">P</button>
               <button type="button" class="chip" aria-pressed="true">M</button>
               <button type="button" class="chip" aria-pressed="false">G</button>
               <button type="button" class="chip" aria-pressed="false">GG</button>
               <button type="button" class="chip" aria-pressed="false">XG</button>
+            </div>
+          </div>
+          <div class="field">
+            <span class="lbl" id="lblEst">Estampa preferida</span>
+            <div class="chips" role="group" aria-labelledby="lblEst" data-group="est">
+              <button type="button" class="chip" aria-pressed="false">Assinatura</button>
+              <button type="button" class="chip" aria-pressed="false">Estrela</button>
+              <button type="button" class="chip" aria-pressed="true">A Rua é Tua</button>
+              <button type="button" class="chip" aria-pressed="false">Todas</button>
             </div>
           </div>
           <div class="field">
@@ -473,30 +582,69 @@
           <p class="form-msg" id="msg" role="status" aria-live="polite"></p>
           <p class="form-fine">Só usamos seu WhatsApp pra avisar do drop. Sem spam.</p>
         </form>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- DÚVIDAS -->
+  <section class="band faq" id="duvidas">
+    <div class="wrap faq-in">
+      <div class="sec-head rv">
+        <p class="eyebrow">Dúvidas</p>
+        <h2 class="display headline">Pergunta,<br><em>que a gente responde.</em></h2>
+      </div>
+      <div class="faq-list">
+        <details>
+          <summary>Como funciona a pré-venda?</summary>
+          <p>Você entra na lista com nome e WhatsApp. Antes do drop abrir pra todo mundo, a gente te chama com o preço de estreia e você escolhe tamanho e cor primeiro.</p>
+        </details>
+        <details>
+          <summary>Qual tamanho eu pego?</summary>
+          <p>A modelagem é oversized, larga de propósito. Na dúvida entre dois tamanhos, vai no menor pra um caimento mais certinho, ou no maior pra ficar bem largão. <button type="button" class="link-btn" data-open="sizeModal">Ver tabela de medidas</button></p>
+        </details>
+        <details>
+          <summary>A camiseta encolhe ou desbota?</summary>
+          <p>Não. A malha é pré-encolhida e o tingimento é firme. A estampa DTF aguenta lavagem. Lava a 30°, sem alvejante e sem secadora.</p>
+        </details>
+        <details>
+          <summary>Quantas peças vão ter?</summary>
+          <p>O Drop 01 tem só 50 peças no total, somando as três estampas e as duas cores. Quem tá na lista fica sabendo primeiro dos próximos drops.</p>
+        </details>
       </div>
     </div>
   </section>
 </main>
 
-<footer>
+<footer class="foot">
   <div class="wrap">
-    <div class="foot-top">
-      <p>Zanza Street Wear. Camisetas oversized pra quem faz da rua o seu lugar.</p>
-      <div class="foot-cols">
-        <div>
-          <h4>Loja</h4>
-          <ul><li><a href="#drop">Drop 01</a></li><li><a href="#lookbook">Lookbook</a></li><li><a href="#qualidade">Qualidade</a></li><li><button type="button" class="link-btn" style="color:inherit;text-decoration:none;font:inherit" data-open="sizeModal">Tabela de medidas</button></li><li><a href="#lista">Pré-venda</a></li></ul>
-        </div>
-        <div>
-          <h4>Redes</h4>
-          <ul id="socials"></ul>
-        </div>
+    <img class="foot-word" src="assets/wordmark-light.webp" alt="Zanza" width="1000" height="378" loading="lazy">
+    <div class="foot-cols">
+      <div>
+        <h3>Drop 01</h3>
+        <ul><li><a href="#visao">Visão geral</a></li><li><a href="#estampas">Estampas</a></li><li><button type="button" class="link-btn" data-open="sizeModal">Tabela de medidas</button></li></ul>
+      </div>
+      <div>
+        <h3>Zanza</h3>
+        <ul><li><a href="#manifesto">Manifesto</a></li><li><a href="#lookbook">Lookbook</a></li><li><a href="#duvidas">Dúvidas</a></li></ul>
+      </div>
+      <div>
+        <h3>Redes</h3>
+        <ul id="socials"></ul>
       </div>
     </div>
-    <img class="foot-word" src="assets/wordmark-light.webp" alt="Zanza" width="1000" height="378" loading="lazy">
-    <div class="foot-bottom"><span>© 2026 Zanza</span><span>A rua é tua ★</span></div>
+    <div class="foot-bottom"><span>© 2026 Zanza Street Wear. Feito no Brasil.</span><span>A rua é tua ★</span></div>
   </div>
 </footer>
+
+<!-- barra de compra fixa no celular -->
+<div class="buybar" id="buybar" aria-hidden="true">
+  <div><b>Drop 01</b><span>Pré-venda · 50 peças</span></div>
+  <a class="btn btn-blue btn-sm" href="#lista" tabindex="-1">Entrar na lista</a>
+</div>
+
+<!-- cursor próprio (só mouse) -->
+<div class="cursor" id="cursor" aria-hidden="true"><span class="cursor-dot"></span><span class="cursor-ring"><em id="cursorLabel"></em></span></div>
 
 <!-- WhatsApp flutuante (aparece quando CONFIG.WHATSAPP_NUMERO estiver preenchido) -->
 <a class="wa-fab" id="waFab" href="#" target="_blank" rel="noopener" aria-label="Chamar a Zanza no WhatsApp" hidden>

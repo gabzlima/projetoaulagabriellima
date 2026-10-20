@@ -15,6 +15,10 @@ const CONFIG = {
   INSTAGRAM: '',
   TIKTOK: '',
 
+  // Data e hora em que o drop abre, com fuso. Ex.: '2026-11-20T19:00:00-03:00'
+  // Vazio (ou data que já passou) = a contagem regressiva não aparece.
+  DATA_DROP: '',
+
   // Fotos do lookbook (substituem os quadros em ordem). Ex.: ['assets/lookbook/01.webp', 'assets/lookbook/02.webp']
   LOOKBOOK_FOTOS: []
 };
@@ -23,9 +27,14 @@ const CONFIG = {
   'use strict';
   const $ = (s, r = document) => r.querySelector(s);
   const $$ = (s, r = document) => [...r.querySelectorAll(s)];
-  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const root = document.documentElement;
+  const motion = root.classList.contains('motion');
+  const fine = root.classList.contains('fine');
+  const clamp = (v, a = 0, b = 1) => Math.min(b, Math.max(a, v));
+  const lerp = (a, b, t) => a + (b - a) * t;
+  const easeInOut = t => t < .5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
 
-  /* ---------- grão de asfalto (gerado em tempo ocioso, sem blend mode) ---------- */
+  /* ---------- grão de asfalto (gerado em tempo ocioso) ---------- */
   const grain = () => {
     try {
       const c = document.createElement('canvas'); c.width = c.height = 120;
@@ -40,26 +49,161 @@ const CONFIG = {
   /* ---------- faixas: duplica o texto pra rolar sem emenda ---------- */
   $$('[data-repeat]').forEach(t => { t.innerHTML = t.innerHTML.repeat(8); });
 
-  /* ---------- header com fundo ao rolar ---------- */
-  const nav = $('#nav');
-  const onScroll = () => nav.classList.toggle('scrolled', scrollY > 20);
-  addEventListener('scroll', onScroll, { passive: true }); onScroll();
+  /* ======================================================================
+     HERO: holofote que revela a camada escondida
+     Só mexe em translate/scale (sem repintar), segue o mouse ou o dedo e,
+     quando ninguém mexe, passeia sozinho pela tela.
+     ====================================================================== */
+  const hero = $('#hero'), spot = $('#spot'), wm = $('#wordmark');
+  if (motion && hero && spot) {
+    let w = 0, h = 0, x = 0, y = 0, tx = 0, ty = 0, raf = 0, visible = true, lastInput = -1e9, started = false;
+    const measure = () => {
+      w = hero.offsetWidth; h = hero.offsetHeight;
+      hero.style.setProperty('--hw', w + 'px'); hero.style.setProperty('--hh', h + 'px');
+    };
+    measure(); addEventListener('resize', measure, { passive: true });
+    x = tx = w * .5; y = ty = h * .45;
 
-  /* ---------- parallax suave da logo (só mouse) ---------- */
-  const hero = $('#hero'), wm = $('#wordmark');
-  if (!reduce && matchMedia('(hover: hover)').matches) {
-    hero.addEventListener('pointermove', e => {
+    const tick = now => {
+      raf = 0;
+      if (!visible) return;
+      if (now - lastInput > 2600) { // passeio automático
+        const t = now / 1000;
+        tx = w * (.5 + .34 * Math.sin(t * .45));
+        ty = h * (.45 + .28 * Math.sin(t * .63 + 1.3));
+      }
+      x = lerp(x, tx, .12); y = lerp(y, ty, .12);
+      spot.style.setProperty('--sx', x.toFixed(1) + 'px');
+      spot.style.setProperty('--sy', y.toFixed(1) + 'px');
+      raf = requestAnimationFrame(tick);
+    };
+    const run = () => { if (!raf && visible) raf = requestAnimationFrame(tick); };
+    const point = e => {
       const r = hero.getBoundingClientRect();
-      wm.style.setProperty('--px', ((e.clientX - r.left) / r.width - .5) * 22 + 'px');
-      wm.style.setProperty('--py', ((e.clientY - r.top) / r.height - .5) * 14 + 'px');
-    });
+      tx = e.clientX - r.left; ty = e.clientY - r.top; lastInput = performance.now();
+      if (started) spot.style.setProperty('--ss', 1);
+      run();
+    };
+    hero.addEventListener('pointermove', point, { passive: true });
+    hero.addEventListener('pointerdown', point, { passive: true });
+    new IntersectionObserver(([en]) => { visible = en.isIntersecting; if (visible) run(); }).observe(hero);
+    // entra depois da abertura (estrela + logo)
+    setTimeout(() => { started = true; spot.style.setProperty('--ss', 1); run(); }, 2300);
+
+    // parallax suave da logo (só mouse)
+    if (fine) hero.addEventListener('pointermove', e => {
+      const r = hero.getBoundingClientRect();
+      wm.style.setProperty('--px', ((e.clientX - r.left) / r.width - .5) * 18 + 'px');
+      wm.style.setProperty('--py', ((e.clientY - r.top) / r.height - .5) * 10 + 'px');
+    }, { passive: true });
   }
 
+  /* ======================================================================
+     CURSOR PRÓPRIO (só mouse): ponto + anel que segue com atraso,
+     cresce e mostra uma palavra em cima do que dá pra clicar.
+     ====================================================================== */
+  const cursor = $('#cursor');
+  if (motion && fine && cursor) {
+    const label = $('#cursorLabel');
+    let mx = -100, my = -100, rx = -100, ry = -100, raf = 0;
+    const loop = () => {
+      rx = lerp(rx, mx, .2); ry = lerp(ry, my, .2);
+      cursor.style.setProperty('--rx', rx.toFixed(1) + 'px');
+      cursor.style.setProperty('--ry', ry.toFixed(1) + 'px');
+      raf = Math.abs(rx - mx) + Math.abs(ry - my) > .3 ? requestAnimationFrame(loop) : 0;
+    };
+    addEventListener('pointermove', e => {
+      if (e.pointerType !== 'mouse') return;
+      mx = e.clientX; my = e.clientY;
+      cursor.style.setProperty('--cx', mx + 'px'); cursor.style.setProperty('--cy', my + 'px');
+      cursor.classList.remove('hide');
+      if (!raf) raf = requestAnimationFrame(loop);
+    }, { passive: true });
+    document.addEventListener('pointerover', e => {
+      const el = e.target.closest('[data-cursor], a, button, summary, .chip, input, label');
+      const typing = el && el.matches('input');
+      cursor.classList.toggle('hide', !!typing);
+      const word = el && !typing ? (el.dataset.cursor || '') : '';
+      label.textContent = word;
+      cursor.classList.toggle('big', !!el && !typing);
+    });
+    document.addEventListener('pointerdown', () => cursor.classList.add('press'));
+    document.addEventListener('pointerup', () => cursor.classList.remove('press'));
+    document.documentElement.addEventListener('pointerleave', () => cursor.classList.add('hide'));
+  }
+
+  /* ---------- botões magnéticos ---------- */
+  if (motion && fine) $$('.magnetic, .lnav .btn, .form-card .btn').forEach(b => {
+    b.addEventListener('pointermove', e => {
+      const r = b.getBoundingClientRect();
+      b.style.setProperty('--mx', ((e.clientX - r.left) / r.width - .5) * 14 + 'px');
+      b.style.setProperty('--my', ((e.clientY - r.top) / r.height - .5) * 10 + 'px');
+    });
+    b.addEventListener('pointerleave', () => { b.style.setProperty('--mx', '0px'); b.style.setProperty('--my', '0px'); });
+  });
+
   /* ---------- entrada ao rolar ---------- */
-  if (!reduce && 'IntersectionObserver' in window) {
-    document.documentElement.classList.add('js');
+  if (motion && 'IntersectionObserver' in window) {
     const io = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } }), { threshold: .12 });
     $$('.rv').forEach(el => io.observe(el));
+  }
+
+  /* ======================================================================
+     CENA FIXA (Visão geral): a camiseta entra, vira, troca de cor e dá zoom
+     conforme a rolagem. 4 etapas, uma legenda por etapa.
+     ====================================================================== */
+  const track = $('#sceneTrack'), stageS = $('#sceneStage'), teeS = $('#sceneTee');
+  const caps = $$('#sceneCaps .cap'), dots = $$('.scene-dots li');
+  if (motion && track) {
+    let step = -1, active = false, queued = false;
+    const render = () => {
+      queued = false;
+      const r = track.getBoundingClientRect();
+      const total = r.height - innerHeight;
+      const p = clamp(-r.top / total);
+
+      const intro = lerp(.8, 1, easeInOut(clamp(p / .14)));
+      // virada: de 0,25 a 0,40 gira 180° e troca frente por costas no meio
+      let turn = lerp(-24, 0, easeInOut(clamp(p / .2)));
+      let view = 'front';
+      if (p >= .25) {
+        const t = easeInOut(clamp((p - .25) / .15));
+        turn = t < .5 ? t * 180 : -180 + t * 180;
+        view = t < .5 ? 'front' : 'back';
+      }
+      const zoom = easeInOut(clamp((p - .76) / .18));
+      teeS.style.setProperty('--intro', intro.toFixed(3));
+      teeS.style.setProperty('--turn', turn.toFixed(2) + 'deg');
+      teeS.style.setProperty('--zoom', zoom.toFixed(3));
+      if (stageS.dataset.view !== view) stageS.dataset.view = view;
+      const color = p >= .55 ? 'off' : 'black';
+      if (stageS.dataset.color !== color) stageS.dataset.color = color;
+
+      const s = p < .25 ? 0 : p < .5 ? 1 : p < .75 ? 2 : 3;
+      if (s !== step) {
+        step = s;
+        caps.forEach((c, i) => c.classList.toggle('on', i === s));
+        dots.forEach((d, i) => d.classList.toggle('on', i === s));
+      }
+    };
+    const onScroll = () => { if (active && !queued) { queued = true; requestAnimationFrame(render); } };
+    new IntersectionObserver(([en]) => { active = en.isIntersecting; if (active) onScroll(); }, { rootMargin: '100px' }).observe(track);
+    addEventListener('scroll', onScroll, { passive: true });
+    addEventListener('resize', onScroll, { passive: true });
+    render();
+  } else caps.forEach(c => c.classList.add('on'));
+
+  /* ---------- brilho que segue o cursor nos cartões de detalhe ---------- */
+  const bento = $('#bento');
+  if (fine && bento) {
+    const tiles = $$('.tile', bento);
+    bento.addEventListener('pointermove', e => {
+      tiles.forEach(t => {
+        const r = t.getBoundingClientRect();
+        t.style.setProperty('--gx', (e.clientX - r.left) + 'px');
+        t.style.setProperty('--gy', (e.clientY - r.top) + 'px');
+      });
+    }, { passive: true });
   }
 
   /* ---------- lookbook: fotos reais no lugar dos quadros ---------- */
@@ -79,8 +223,15 @@ const CONFIG = {
   });
   $$('[data-open]').forEach(b => b.addEventListener('click', () => openDialog(document.getElementById(b.dataset.open))));
 
-  /* ---------- provador ---------- */
+  /* ======================================================================
+     PROVADOR (cartões de estampa)
+     ====================================================================== */
   const zoomModal = $('#zoomModal'), zoomStage = $('#zoomStage'), zoomCap = $('#zoomCap');
+  const pick = (group, text) => {
+    const g = $(`[data-group="${group}"]`);
+    if (!g) return;
+    $$('.chip', g).forEach(o => o.setAttribute('aria-pressed', o.textContent.trim() === text));
+  };
   $$('.tee-card').forEach(card => {
     const side = $('.side', card);
     $$('.swatch', card).forEach(b => b.addEventListener('click', () => {
@@ -94,15 +245,24 @@ const CONFIG = {
     }));
 
     const stage = $('.stage', card), tee = $('.tee', card);
-    if (!reduce) {
+    if (motion) {
       stage.addEventListener('pointermove', e => {
         if (e.pointerType === 'touch') return;
         const r = stage.getBoundingClientRect();
-        tee.style.setProperty('--ry', ((e.clientX - r.left) / r.width - .5) * 28 + 'deg');
-        tee.style.setProperty('--rx', -((e.clientY - r.top) / r.height - .5) * 16 + 'deg');
+        const px = (e.clientX - r.left) / r.width, py = (e.clientY - r.top) / r.height;
+        tee.style.setProperty('--ry', (px - .5) * 28 + 'deg');
+        tee.style.setProperty('--rx', -(py - .5) * 16 + 'deg');
+        stage.style.setProperty('--gx', px * 100 + '%');
+        stage.style.setProperty('--gy', py * 100 + '%');
       });
       stage.addEventListener('pointerleave', () => { tee.style.setProperty('--ry', '0deg'); tee.style.setProperty('--rx', '0deg'); });
     }
+
+    // "Quero essa": já deixa estampa e cor marcadas no formulário
+    $('[data-tee]', card).addEventListener('click', e => {
+      pick('est', e.currentTarget.dataset.tee);
+      pick('cor', card.dataset.color === 'off' ? 'Off-white' : 'Preta');
+    });
 
     // zoom: clona a camiseta e enquadra a estampa visível
     $('.zoom-btn', card).addEventListener('click', () => {
@@ -133,14 +293,45 @@ const CONFIG = {
   const light = () => {
     ticking = false;
     const r = mt.getBoundingClientRect(), vh = innerHeight;
-    const p = Math.min(1, Math.max(0, (vh * .85 - r.top) / (r.height + vh * .35)));
+    const p = clamp((vh * .85 - r.top) / (r.height + vh * .35));
     const n = Math.round(p * words.length);
     if (n === lit) return;
     lit = n;
     words.forEach((w, i) => w.classList.toggle('on', i < n));
   };
-  if (reduce) words.forEach(w => w.classList.add('on'));
+  if (!motion) words.forEach(w => w.classList.add('on'));
   else { addEventListener('scroll', () => { if (!ticking) { ticking = true; requestAnimationFrame(light); } }, { passive: true }); light(); }
+
+  /* ---------- barra de compra no celular: aparece depois do hero, some no formulário ---------- */
+  const bar = $('#buybar'), lista = $('#lista');
+  if (bar && 'IntersectionObserver' in window) {
+    let pastHero = false, atForm = false;
+    const sync = () => {
+      const on = pastHero && !atForm;
+      bar.classList.toggle('on', on);
+      document.body.classList.toggle('bar-on', on);
+      $('a', bar).tabIndex = on ? 0 : -1;
+      bar.setAttribute('aria-hidden', String(!on));
+    };
+    new IntersectionObserver(([en]) => { pastHero = !en.isIntersecting && en.boundingClientRect.top < 0; sync(); }).observe(hero);
+    new IntersectionObserver(([en]) => { atForm = en.isIntersecting; sync(); }, { threshold: .15 }).observe(lista);
+  }
+
+  /* ---------- contagem regressiva do drop ---------- */
+  const alvo = CONFIG.DATA_DROP ? new Date(CONFIG.DATA_DROP).getTime() : NaN;
+  if (alvo > Date.now()) {
+    const cd = $('#countdown'), pad = n => String(n).padStart(2, '0');
+    const tickCd = () => {
+      const s = Math.max(0, Math.floor((alvo - Date.now()) / 1000));
+      if (!s) { cd.hidden = true; return; }
+      $('#cdD').textContent = pad(Math.floor(s / 86400));
+      $('#cdH').textContent = pad(Math.floor(s / 3600) % 24);
+      $('#cdM').textContent = pad(Math.floor(s / 60) % 60);
+      $('#cdS').textContent = pad(s % 60);
+      setTimeout(tickCd, 1000);
+    };
+    cd.hidden = false; tickCd();
+  }
 
   /* ---------- WhatsApp flutuante e redes ---------- */
   const waLink = (texto) => `https://wa.me/${CONFIG.WHATSAPP_NUMERO}?text=${encodeURIComponent(texto)}`;
@@ -159,7 +350,9 @@ const CONFIG = {
     socials.append(li);
   });
 
-  /* ---------- formulário de pré-venda ---------- */
+  /* ======================================================================
+     FORMULÁRIO DE PRÉ-VENDA
+     ====================================================================== */
   $$('.chips').forEach(g => g.addEventListener('click', e => {
     const b = e.target.closest('.chip'); if (!b) return;
     $$('.chip', g).forEach(o => o.setAttribute('aria-pressed', o === b));
@@ -220,6 +413,7 @@ const CONFIG = {
     });
   };
 
+  const escolhido = g => $(`[data-group="${g}"] [aria-pressed="true"]`, form).textContent.trim();
   form.addEventListener('submit', async e => {
     e.preventDefault();
     msg.className = 'form-msg'; msg.textContent = '';
@@ -227,19 +421,19 @@ const CONFIG = {
     if (!okNome || !okWhats) { (!okNome ? nomeEl : whatsEl).focus(); return; }
     if (form.elements.site.value) return; // honeypot: robô preencheu
 
-    const tam = $('[data-group="tam"] [aria-pressed="true"]', form).textContent;
-    const cor = $('[data-group="cor"] [aria-pressed="true"]', form).textContent;
+    const est = escolhido('est'), tam = escolhido('tam'), cor = escolhido('cor');
     const dados = {
       data: new Date().toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' }),
       nome: nomeEl.value.trim(),
       whatsapp: '55' + whatsEl.value.replace(/\D/g, ''),
-      tamanho: tam, cor, origem: location.href
+      estampa: est, tamanho: tam, cor, origem: location.href
     };
 
-    btn.disabled = true; btn.firstChild.textContent = 'Enviando… ';
+    const label = btn.firstChild;
+    btn.disabled = true; label.textContent = 'Enviando… ';
     try { await enviar(dados); }
     catch (err) {
-      btn.disabled = false; btn.firstChild.textContent = 'Quero entrar na lista ';
+      btn.disabled = false; label.textContent = 'Quero entrar na lista ';
       msg.textContent = 'Não rolou enviar agora. Confere a internet e tenta de novo.';
       return;
     }
@@ -247,8 +441,8 @@ const CONFIG = {
     card.innerHTML = `<div class="success">
       <img class="stk" src="assets/star-light.webp" alt="" width="120" height="138">
       <h3>Tá na lista, ${nomeLimpo(dados.nome).split(' ')[0]}!</h3>
-      <p>Tamanho ${tam}, cor ${cor.toLowerCase()}. A gente te chama no WhatsApp antes do drop abrir.</p>
-      <a class="btn ghost" href="#drop">Ver as camisetas de novo</a>
+      <p>${est === 'Todas' ? 'Todas as estampas' : est}, tamanho ${tam}, cor ${cor.toLowerCase()}. A gente te chama no WhatsApp antes do drop abrir.</p>
+      <a class="btn" href="#estampas">Ver as camisetas de novo</a>
     </div>`;
   });
 })();

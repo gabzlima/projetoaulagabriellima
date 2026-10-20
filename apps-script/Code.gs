@@ -6,7 +6,7 @@ function doPost(e) {
   const p = e.parameter;
   const planilha = SpreadsheetApp.getActiveSpreadsheet();
   let aba = planilha.getSheetByName(ABA) || planilha.insertSheet(ABA);
-  if (aba.getLastRow() === 0) aba.appendRow(['Data', 'Nome', 'WhatsApp', 'Tamanho', 'Cor', 'Origem']);
-  aba.appendRow([p.data, p.nome, p.whatsapp, p.tamanho, p.cor, p.origem]);
+  if (aba.getLastRow() === 0) aba.appendRow(['Data', 'Nome', 'WhatsApp', 'Estampa', 'Tamanho', 'Cor', 'Origem']);
+  aba.appendRow([p.data, p.nome, p.whatsapp, p.estampa, p.tamanho, p.cor, p.origem]);
   return ContentService.createTextOutput('ok');
 }
