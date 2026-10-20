@@ -21,9 +21,19 @@ var permitir: UInt32 = 1
 CMIOObjectSetPropertyData(CMIOObjectID(kCMIOObjectSystemObject), &endereco, 0, nil,
                           UInt32(MemoryLayout<UInt32>.size), &permitir)
 
+func todosDispositivos() -> [AVCaptureDevice] {
+    var r = AVCaptureDevice.devices(for: .muxed)
+    let extras = AVCaptureDevice.DiscoverySession(deviceTypes: [.externalUnknown], mediaType: nil,
+                                                  position: .unspecified).devices
+    for d in extras where !r.contains(where: { $0.uniqueID == d.uniqueID }) { r.append(d) }
+    return r
+}
+
 func acharDispositivo() -> AVCaptureDevice? {
-    let todos = AVCaptureDevice.devices(for: .muxed)
-    return todos.first { filtro.isEmpty || $0.localizedName.lowercased().contains(filtro) }
+    // a tela do iPhone é um dispositivo "muxed" (vídeo + áudio juntos)
+    return todosDispositivos().first {
+        $0.hasMediaType(.muxed) && (filtro.isEmpty || $0.localizedName.lowercased().contains(filtro))
+    }
 }
 
 final class Saida: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate {
@@ -51,14 +61,14 @@ AVCaptureDevice.requestAccess(for: .video) { ok in
 }
 
 var dispositivo: AVCaptureDevice? = nil
-for _ in 0..<20 { // espera até 10 s o iPhone aparecer
+for _ in 0..<40 { // espera até 20 s o iPhone aparecer, deixando o macOS atualizar a lista
     dispositivo = acharDispositivo()
     if dispositivo != nil { break }
-    Thread.sleep(forTimeInterval: 0.5)
+    RunLoop.main.run(until: Date().addingTimeInterval(0.5))
 }
 guard let disp = dispositivo else {
-    let nomes = AVCaptureDevice.devices(for: .muxed).map { $0.localizedName }
-    log("Tela do iPhone não encontrada. Dispositivos de tela vistos: \(nomes). Desbloqueie o iPhone e toque em Confiar.")
+    let vistos = todosDispositivos().map { "\($0.localizedName)\($0.hasMediaType(.muxed) ? " [tela]" : "")" }
+    log("Tela do iPhone não encontrada. Dispositivos vistos: \(vistos). Desbloqueie o iPhone e confie neste Mac.")
     exit(3)
 }
 log("Capturando: \(disp.localizedName)")
