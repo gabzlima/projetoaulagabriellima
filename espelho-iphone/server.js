@@ -170,4 +170,9 @@ http.createServer((req, res) => {
   html(res, 200, paginaEspelho());
 }).listen(PORT, HOST, () => {
   console.log(`Espelho do iPhone em http://${HOST}:${PORT}  (fonte: ${FONTE})`);
+  if (HOST === '0.0.0.0') {
+    for (const lista of Object.values(require('os').networkInterfaces()))
+      for (const i of lista || [])
+        if (i.family === 'IPv4' && !i.internal) console.log(`No iPad, abra: http://${i.address}:${PORT}`);
+  }
 });
