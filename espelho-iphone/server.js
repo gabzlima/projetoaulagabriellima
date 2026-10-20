@@ -3,7 +3,9 @@
 'use strict';
 const http = require('http');
 const crypto = require('crypto');
-const { spawn } = require('child_process');
+const path = require('path');
+const fs = require('fs');
+const { spawn, execFileSync } = require('child_process');
 
 const PORT = Number(process.env.PORT) || 3000;
 const HOST = process.env.HOST || '127.0.0.1'; // use 0.0.0.0 para abrir de outro aparelho da rede
@@ -26,7 +28,7 @@ const falhas = new Map(); // ip -> { n, ate }
 // ---------- captura ----------
 function argsEntrada() {
   switch (FONTE) {
-    case 'mac': // o iPhone plugado aparece como dispositivo de vídeo do avfoundation
+    case 'mac-ffmpeg': // alternativa: o iPhone como dispositivo de vídeo do avfoundation
       return ['-f', 'avfoundation', '-framerate', String(FPS), '-pixel_format', 'uyvy422',
         '-i', `${process.env.IPHONE_DEVICE || 'iPhone'}`];
     case 'custom': // ex.: FFMPEG_ENTRADA="-f h264 -i pipe:0" ou qualquer entrada do ffmpeg
@@ -41,25 +43,49 @@ let ff = null;
 let ultimoFrame = null;
 let ultimoErro = '';
 
+// No Mac, um programa Swift pequeno libera a tela do iPhone e entrega quadros com o tamanho na frente.
+function prepararAjudanteMac() {
+  const fonte = path.join(__dirname, 'captura-iphone.swift');
+  const bin = path.join(__dirname, 'captura-iphone');
+  if (!fs.existsSync(bin) || fs.statSync(bin).mtimeMs < fs.statSync(fonte).mtimeMs) {
+    console.log('Preparando o captador do iPhone (só na primeira vez)…');
+    execFileSync('swiftc', ['-O', fonte, '-o', bin], { stdio: 'inherit' });
+  }
+  return bin;
+}
+
 function iniciarCaptura() {
   if (ff) return;
-  const args = ['-hide_banner', '-loglevel', 'error', ...argsEntrada(),
-    '-vf', `scale=${LARGURA}:-2`, '-q:v', String(QUALIDADE), '-f', 'image2pipe', '-c:v', 'mjpeg', 'pipe:1'];
-  ff = spawn('ffmpeg', args, { stdio: ['ignore', 'pipe', 'pipe'] });
+  const doMac = FONTE === 'mac';
+  if (doMac) {
+    ff = spawn(prepararAjudanteMac(), [process.env.IPHONE_DEVICE || '', String(FPS), String(LARGURA)],
+      { stdio: ['ignore', 'pipe', 'pipe'] });
+  } else {
+    const args = ['-hide_banner', '-loglevel', 'error', ...argsEntrada(),
+      '-vf', `scale=${LARGURA}:-2`, '-q:v', String(QUALIDADE), '-f', 'image2pipe', '-c:v', 'mjpeg', 'pipe:1'];
+    ff = spawn('ffmpeg', args, { stdio: ['ignore', 'pipe', 'pipe'] });
+  }
   ultimoErro = '';
   let buf = Buffer.alloc(0);
+  const novoFrame = (frame) => { ultimoFrame = frame; for (const res of clientes) enviar(res, frame); };
   ff.stdout.on('data', (d) => {
     buf = Buffer.concat([buf, d]);
+    if (doMac) {
+      while (buf.length >= 4 && buf.length >= 4 + buf.readUInt32BE(0)) {
+        const n = buf.readUInt32BE(0);
+        novoFrame(buf.subarray(4, 4 + n));
+        buf = buf.subarray(4 + n);
+      }
+      return;
+    }
     let i;
     while ((i = buf.indexOf(Buffer.from([0xff, 0xd9]))) !== -1) {
-      const frame = buf.subarray(0, i + 2);
+      novoFrame(buf.subarray(0, i + 2));
       buf = buf.subarray(i + 2);
-      ultimoFrame = frame;
-      for (const res of clientes) enviar(res, frame);
     }
   });
   ff.stderr.on('data', (d) => { ultimoErro = (ultimoErro + d).slice(-600); });
-  ff.on('error', (e) => { ultimoErro = e.code === 'ENOENT' ? 'ffmpeg não está instalado.' : String(e); ff = null; });
+  ff.on('error', (e) => { ultimoErro = e.code === 'ENOENT' ? 'Programa de captura não encontrado (ffmpeg instalado?).' : String(e); ff = null; });
   ff.on('close', () => {
     ff = null;
     if (clientes.size) setTimeout(iniciarCaptura, 2000); // iPhone desplugado? tenta de novo
