@@ -1,28 +1,4 @@
-/* ======================================================================
-   ZANZA · configurações (é só trocar aqui)
-   ====================================================================== */
-const CONFIG = {
-  // URL do Google Apps Script (Implantar > App da Web). Passo a passo em apps-script/LEIAME.md
-  // Enquanto estiver vazia, o formulário funciona, mas não envia os dados pra lugar nenhum.
-  PLANILHA_URL: '',
-
-  // WhatsApp da marca: só números, com 55 + DDD. Ex.: '5591912345678'
-  // Vazio = o botão flutuante fica escondido.
-  WHATSAPP_NUMERO: '',
-  WHATSAPP_MENSAGEM: 'Fala, Zanza! Vim pelo site e quero saber do Drop 01.',
-
-  // Só o @ (sem o "@"). Vazio = aparece "em breve" no rodapé.
-  INSTAGRAM: '',
-  TIKTOK: '',
-
-  // Data e hora em que o drop abre, com fuso. Ex.: '2026-11-20T19:00:00-03:00'
-  // Vazio (ou data que já passou) = a contagem regressiva não aparece.
-  DATA_DROP: '',
-
-  // Fotos do lookbook (substituem os quadros em ordem). Ex.: ['assets/lookbook/01.webp', 'assets/lookbook/02.webp']
-  LOOKBOOK_FOTOS: []
-};
-
+/* ZANZA · comportamento da página inicial. As configurações ficam em js/config.js */
 (() => {
   'use strict';
   const $ = (s, r = document) => r.querySelector(s);
@@ -68,9 +44,13 @@ const CONFIG = {
       raf = 0;
       if (!visible) return;
       if (now - lastInput > 2600) { // passeio automático
-        const t = now / 1000;
-        tx = w * (.5 + .34 * Math.sin(t * .45));
-        ty = h * (.45 + .28 * Math.sin(t * .63 + 1.3));
+        if (root.classList.contains('paused')) { // pausado: para onde está
+          if (Math.abs(x - tx) + Math.abs(y - ty) < .5) return;
+        } else {
+          const t = now / 1000;
+          tx = w * (.5 + .34 * Math.sin(t * .45));
+          ty = h * (.45 + .28 * Math.sin(t * .63 + 1.3));
+        }
       }
       x = lerp(x, tx, .12); y = lerp(y, ty, .12);
       spot.style.setProperty('--sx', x.toFixed(1) + 'px');
@@ -87,6 +67,7 @@ const CONFIG = {
     hero.addEventListener('pointermove', point, { passive: true });
     hero.addEventListener('pointerdown', point, { passive: true });
     new IntersectionObserver(([en]) => { visible = en.isIntersecting; if (visible) run(); }).observe(hero);
+    document.addEventListener('zanza:pause', e => { if (!e.detail) run(); });
     // entra depois da abertura (estrela + logo)
     setTimeout(() => { started = true; spot.style.setProperty('--ss', 1); run(); }, 2300);
 
@@ -314,7 +295,13 @@ const CONFIG = {
       bar.setAttribute('aria-hidden', String(!on));
     };
     new IntersectionObserver(([en]) => { pastHero = !en.isIntersecting && en.boundingClientRect.top < 0; sync(); }).observe(hero);
-    new IntersectionObserver(([en]) => { atForm = en.isIntersecting; sync(); }, { threshold: .15 }).observe(lista);
+    // some no formulário e no rodapé (não cobre o conteúdo do fim da página)
+    const vistos = new Set();
+    const io = new IntersectionObserver(es => {
+      es.forEach(en => en.isIntersecting ? vistos.add(en.target) : vistos.delete(en.target));
+      atForm = vistos.size > 0; sync();
+    }, { threshold: .05 });
+    [lista, $('footer')].forEach(el => el && io.observe(el));
   }
 
   /* ---------- contagem regressiva do drop ---------- */
@@ -359,7 +346,7 @@ const CONFIG = {
   }));
 
   const form = $('#signup'), msg = $('#msg'), btn = $('#submitBtn');
-  const nomeEl = $('#nome'), whatsEl = $('#whats');
+  const nomeEl = $('#nome'), whatsEl = $('#whats'), aceiteEl = $('#aceite'), idadeEl = $('#idade');
 
   // máscara: (91) 9 0000-0000 (celular) ou (91) 0000-0000 (fixo)
   const mask = raw => {
@@ -397,6 +384,10 @@ const CONFIG = {
     if (d.length === 11 && d[2] !== '9') return setErr(whatsEl, 'Celular começa com 9 depois do DDD.');
     return setErr(whatsEl, '');
   };
+  const checkAceite = () => setErr(aceiteEl, aceiteEl.checked ? '' : 'Marca aqui pra gente poder te mandar mensagem no WhatsApp.');
+  const checkIdade = () => setErr(idadeEl, idadeEl.checked ? '' : 'Confirma a idade (ou a autorização do seu responsável) pra entrar na lista.');
+  aceiteEl.addEventListener('change', () => { if (aceiteEl.hasAttribute('aria-invalid')) checkAceite(); });
+  idadeEl.addEventListener('change', () => { if (idadeEl.hasAttribute('aria-invalid')) checkIdade(); });
   nomeEl.addEventListener('blur', checkNome);
   whatsEl.addEventListener('blur', checkWhats);
   nomeEl.addEventListener('input', () => { if (nomeEl.hasAttribute('aria-invalid')) checkNome(); });
@@ -417,16 +408,21 @@ const CONFIG = {
   form.addEventListener('submit', async e => {
     e.preventDefault();
     msg.className = 'form-msg'; msg.textContent = '';
-    const okNome = checkNome(), okWhats = checkWhats();
-    if (!okNome || !okWhats) { (!okNome ? nomeEl : whatsEl).focus(); return; }
+    const ok = [[checkNome(), nomeEl], [checkWhats(), whatsEl], [checkAceite(), aceiteEl], [checkIdade(), idadeEl]];
+    const primeiroErro = ok.find(([v]) => !v);
+    if (primeiroErro) { primeiroErro[1].focus(); return; }
     if (form.elements.site.value) return; // honeypot: robô preencheu
 
     const est = escolhido('est'), tam = escolhido('tam'), cor = escolhido('cor');
+    // só o necessário (LGPD art. 6º, III). Data, aceite e versão da política provam o consentimento (art. 8º, § 2º)
     const dados = {
       data: new Date().toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' }),
       nome: nomeEl.value.trim(),
       whatsapp: '55' + whatsEl.value.replace(/\D/g, ''),
-      estampa: est, tamanho: tam, cor, origem: location.href
+      estampa: est, tamanho: tam, cor,
+      consentimento_whatsapp: 'sim',
+      declaracao_idade: 'sim',
+      politica_versao: CONFIG.POLITICA_VERSAO
     };
 
     const label = btn.firstChild;
