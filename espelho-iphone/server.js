@@ -84,7 +84,7 @@ function iniciarCaptura() {
       buf = buf.subarray(i + 2);
     }
   });
-  ff.stderr.on('data', (d) => { ultimoErro = (ultimoErro + d).slice(-600); });
+  ff.stderr.on('data', (d) => { ultimoErro = (ultimoErro + d).slice(-600); process.stderr.write(d); });
   ff.on('error', (e) => { ultimoErro = e.code === 'ENOENT' ? 'Programa de captura não encontrado (ffmpeg instalado?).' : String(e); ff = null; });
   ff.on('close', () => {
     ff = null;
